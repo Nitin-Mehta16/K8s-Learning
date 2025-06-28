@@ -1,3 +1,80 @@
+# Kubernetes Learning Repository
+
+This repository contains my learning journey and reference materials for Kubernetes (K8s).
+
+## 📚 Contents
+
+### Commands Reference
+- Comprehensive `Commands.md` file with essential Kubernetes commands
+- Organized by resource types (Pods, Nodes, Services, etc.)
+- Includes debugging commands and best practices
+- Covers ephemeral containers and production considerations
+
+### Kind (Kubernetes in Docker)
+- `Kind/k8s.sh` - Scripts for Kind cluster management
+- `Kind/multi_cluster.yaml` - Multi-cluster configuration
+
+### Pod Examples
+- `Pods/Pod.yaml` - Example pod configurations
+- `pod.yaml` - Additional pod examples
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Docker installed
+- kubectl CLI tool
+- Kind (Kubernetes in Docker)
+
+### Quick Start
+```bash
+# Create a Kind cluster
+kind create cluster --name my-cluster --config ./Kind/cluster.yaml
+
+# Check cluster status
+kubectl get nodes
+
+# Apply pod configuration
+kubectl apply -f pod.yaml
+```
+
+## 📖 Learning Resources
+
+### Essential Commands
+- **Pod Management**: Create, describe, edit, delete pods
+- **Debugging**: Logs, describe, events, ephemeral containers
+- **Cluster Management**: Nodes, namespaces, resources
+
+### Best Practices
+- Never use `kubectl exec` in production
+- Use ephemeral containers for debugging
+- Follow declarative approach with YAML files
+- Implement proper logging and monitoring
+
+## 🔧 Tools Used
+
+- **kubectl** - Kubernetes command-line tool
+- **Kind** - Kubernetes in Docker for local development
+- **K9s** - Terminal UI for Kubernetes
+
+## 📝 Notes
+
+- Ephemeral containers are temporary and disappear when you exit
+- Pods are immutable - changes via exec are lost on restart
+- Always use declarative configuration for production
+- Security considerations for production environments
+
+## 🤝 Contributing
+
+This is a personal learning repository. Feel free to use the commands and examples for your own Kubernetes learning journey.
+
+## 📄 License
+
+This project is for educational purposes.
+
+---
+
+**Happy Learning Kubernetes! 🐳**
+
 # KUBERNETES COMMANDS REFERENCE
 
 ## KIND (Kubernetes in Docker)
