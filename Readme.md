@@ -23,24 +23,30 @@
 ## PODS
 1. `kubectl run nitin --image nginx` => Create pod imperatively
 2. `kubectl get pods` => List all pods
-3. `kubectl describe pod nitin` => Detailed pod information
-4. `kubectl get pods -o wide` => Detailed pod information with node info
-5. `kubectl edit pod nitin` => Edit pod in default editor
-6. `kubectl apply -f pod.yaml` => Apply pod from YAML file
-7. `kubectl create -f pod.yaml` => Create pod from YAML file (will update existing pod)
-8. `kubectl delete pod nitin1` => Delete specific pod
-9. `kubectl run nitin1 --image nginx --dry-run=client -o yaml` => Generate YAML template without creating
-10. `kubectl describe pod > description.yaml` => Save pod description to file
-11. `kubectl get pod nitin -o yaml > detail.yaml` => Save pod YAML to file
+3. `kubectl get pod --show-labels` => List all pods and display their labels
+4. `kubectl describe pod nitin` => Detailed pod information
+5. `kubectl get pods -o wide` => Detailed pod information with node info
+6. `kubectl edit pod nitin` => Edit pod in default editor
+7. `kubectl apply -f pod.yaml` => Apply pod from YAML file
+8. `kubectl create -f pod.yaml` => Create pod from YAML file (will update existing pod)
+9. `kubectl delete pod nitin1` => Delete specific pod
+10. `kubectl run nitin1 --image nginx --dry-run=client -o yaml` => Generate YAML template without creating
+11. `kubectl describe pod > description.yaml` => Save pod description to file
+12. `kubectl get pod nitin -o yaml > detail.yaml` => Save pod YAML to file
+13. `kubectl delete -f pod.yaml` => Delete pod(s) defined in a YAML file
+14. `kubectl apply -f pod.yaml --dry-run=server` => Validate pod.yaml against the live API server without applying
+15. `kubectl apply -f pod.yaml --dry-run=client` => Validate pod.yaml locally (client-side) without applying
+16. `kubectl diff -f pod.yaml` => Show differences between the current cluster state and the pod.yaml file
+17. `kubectl exec -it pod_name -c container_name -- sh` => Access a specific container in a pod using sh shell
 
 ### IMPORTANT: kubectl exec (NEVER use in production)
-12. `kubectl exec -it pod_name -- bash` => **NEVER use in production: pods are ephemeral (changes lost on restart) + security risk (privilege escalation)**
+18. `kubectl exec -it pod_name -- bash` => **NEVER use in production: pods are ephemeral (changes lost on restart) + security risk (privilege escalation)**
 
 ## EPHEMERAL CONTAINERS
 **Definition:** Ephemeral containers are temporary containers that run alongside existing containers in a pod for debugging purposes.
 
 ### Debug Command
-13. `kubectl debug pod_name -it --image=busybox --target=container_name -- bash`
+19. `kubectl debug pod_name -it --image=busybox --target=container_name -- bash`
 
 ### Image Options
 - `--image=busybox` => Specifies which Docker image to use for the debug container
@@ -140,9 +146,20 @@ It is considered a more flexible and manageable alternative to Static Pods.
 
 # SIDECAR CONTAINER
 
-A Sidecar container is a secondary container that runs alongside the main application container in the same Pod and complements or enhances its functionality.
+Same as init container but it does not terminate automatically  after it's execution instead stay with main container.
 
-Sidecar containers share the network, storage, and lifecycle with the main container. They're often used for tasks like logging, proxying, syncing, monitoring, or injecting configuration.
+## 🚨 Common Mistake
+People think:
+
+"I'm converting an initContainer to sidecar → let me just copy it and add restartPolicy: Always to the container block."
+
+That's wrong — the container block doesn't allow restartPolicy.
+
+Instead, simply move it to containers: and ensure it has a long-running process (sleep, while true, etc.).
+
+## Commands
+- `kubectl exec -it pod_name -- bash` => Access the main application container in a Pod
+- `kubectl exec -it pod_name -c container_name -- bash` => Access a specific container (e.g., sidecar) in a Pod
 
 # INIT CONTAINER vs SIDECAR CONTAINER
 
@@ -150,20 +167,8 @@ Sidecar containers share the network, storage, and lifecycle with the main conta
 |------------------------|-----------------------------------------------------|----------------------------------------------------|
 | Purpose                | Performs setup before the main container starts     | Runs alongside the main container to assist it      |
 | Execution Time         | Runs sequentially before app starts, then exits     | Runs concurrently with the main container           |
-| Lifecycle              | Exits after completion                              | Lives as long as the Pod is running                 |
 | Restart Behavior       | Restarts only if the Pod restarts                   | Restarts independently if it crashes                |
 | Access to App Runtime  | Cannot interact with the running app (runs before it)| Can interact with the running app in real time      |
 | Use Cases              | - Pre-flight checks<br>- Config setup<br>- Wait for services | - Logging agent<br>- Sidecar proxy (Istio/Envoy)<br>- Metrics exporter |
 | Typical Volumes Used   | Shared volumes to write setup data for the main app | Shared volumes to read/write real-time data         |
-
-
-
-
-
-
-
-
-
-
-
 

@@ -17,4 +17,7 @@ spec:
         - name: postgres-storage
           mountPath: /var/lib/postgresql/data
 
+    - name: init-sidecar
+      image: busybox
+      command: ['sh', '-c', 'while true; do echo "Init container running..."; sleep 60; done']
         
