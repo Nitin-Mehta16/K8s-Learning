@@ -123,7 +123,7 @@ Kube-bench scans cluster components (API server, etcd, scheduler, controller-man
 - Restart automatically without asking the kube-apiserver
 - The location of static pod manifests is defined in `/var/lib/kubelet/config.yaml`, with the default path being `/etc/kubernetes/manifests`
 
-# DAEMONSET
+## DAEMONSET
 
 A DaemonSet ensures that a specific pod runs on all (or selected) nodes in a Kubernetes cluster.
 It is considered a more flexible and manageable alternative to Static Pods.
@@ -171,4 +171,35 @@ Instead, simply move it to containers: and ensure it has a long-running process 
 | Access to App Runtime  | Cannot interact with the running app (runs before it)| Can interact with the running app in real time      |
 | Use Cases              | - Pre-flight checks<br>- Config setup<br>- Wait for services | - Logging agent<br>- Sidecar proxy (Istio/Envoy)<br>- Metrics exporter |
 | Typical Volumes Used   | Shared volumes to write setup data for the main app | Shared volumes to read/write real-time data         |
+
+# CLUSTER IP
+
+ClusterIP is the default Kubernetes service type that exposes the service on a cluster-internal IP address. This makes the service only reachable from within the cluster.
+
+## Command
+- `k expose pod pod-name --port=3000 --target-port=80 --name service-name2` => Create a ClusterIP service (accessible inside Kubernetes network)
+- `k get svc` => List all services in the current namespace
+- `k describe srv service-name` => Get detailed information about a specific service
+
+# NODE PORT
+
+NodePort is a Kubernetes service type that exposes the service on each Node's IP at a static port. This makes the service accessible from outside the Kubernetes cluster.
+
+## Port Types Explained
+- **Node Port**: Port on which the service is exposed to the internet (external access)
+- **Port**: Service port / Port on which the service is exposed to the Kubernetes network (internal access)
+- **Target Port**: Pod port, should equal to the container's exposed port
+
+## Command
+- `k expose pod pod-name --type=NodePort --port=3000 --target-port=80 --name service-name2` => Create a NodePort service (accessible outside Kubernetes network)
+
+# HOW SERVICE WORK
+
+Kubernetes services provide a stable endpoint for accessing pods, which are ephemeral and can be created, destroyed, or moved around the cluster. Services use labels and selectors to automatically discover and route traffic to the appropriate pods.
+
+## How It Works
+1. **Label Selection**: Service uses label selectors to find matching pods
+2. **Endpoint Creation**: Service creates endpoints for each matching pod
+3. **Traffic Routing**: Incoming traffic is distributed across the endpoints
+4. **Automatic Updates**: When pods are added/removed, endpoints are automatically updated
 
