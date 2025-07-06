@@ -38,15 +38,17 @@
 15. `kubectl apply -f pod.yaml --dry-run=client` => Validate pod.yaml locally (client-side) without applying
 16. `kubectl diff -f pod.yaml` => Show differences between the current cluster state and the pod.yaml file
 17. `kubectl exec -it pod_name -c container_name -- sh` => Access a specific container in a pod using sh shell
+18. `k label pod pod_name label-` => Remove a specific label from a pod
+19. `k delete pods --all` => Delete all pods in the current namespace
 
 ### IMPORTANT: kubectl exec (NEVER use in production)
-18. `kubectl exec -it pod_name -- bash` => **NEVER use in production: pods are ephemeral (changes lost on restart) + security risk (privilege escalation)**
+20. `kubectl exec -it pod_name -- bash` => **NEVER use in production: pods are ephemeral (changes lost on restart) + security risk (privilege escalation)**
 
 ## EPHEMERAL CONTAINERS
 **Definition:** Ephemeral containers are temporary containers that run alongside existing containers in a pod for debugging purposes.
 
 ### Debug Command
-19. `kubectl debug pod_name -it --image=busybox --target=container_name -- bash`
+20. `kubectl debug pod_name -it --image=busybox --target=container_name -- bash`
 
 ### Image Options
 - `--image=busybox` => Specifies which Docker image to use for the debug container
@@ -192,6 +194,7 @@ NodePort is a Kubernetes service type that exposes the service on each Node's IP
 
 ## Command
 - `k expose pod pod-name --type=NodePort --port=3000 --target-port=80 --name service-name2` => Create a NodePort service (accessible outside Kubernetes network)
+- `k apply -f first-service.yaml`
 
 # HOW SERVICE WORK
 
@@ -202,4 +205,43 @@ Kubernetes services provide a stable endpoint for accessing pods, which are ephe
 2. **Endpoint Creation**: Service creates endpoints for each matching pod
 3. **Traffic Routing**: Incoming traffic is distributed across the endpoints
 4. **Automatic Updates**: When pods are added/removed, endpoints are automatically updated
+
+# REPLICATION CONTROLLER
+
+A ReplicationController ensures that a specified number of pod replicas are running at any given time. It monitors the pods and automatically replaces any that fail, are deleted, or are terminated.
+
+## Key Features
+- **Desired State**: Maintains a specified number of pod replicas
+- **Self-Healing**: Automatically replaces failed or deleted pods
+- **Scaling**: Can scale the number of replicas up or down
+- **Rolling Updates**: Supports rolling updates for zero-downtime deployments
+
+## Commands
+- `kubectl get rc` => List all ReplicationControllers
+- `kubectl describe rc rc_name` => Get detailed information about a ReplicationController
+- `kubectl scale rc rc_name --replicas=3` => Scale the number of replicas
+- `kubectl apply -f replication-controller.yaml` => Apply a ReplicationController from YAML file
+- `k delete rc --cascade=false rc` => Delete ReplicationController without deleting the managed pods
+- `k replace -f rc.yaml` => Replace the ReplicationController with the configuration from rc.yaml
+
+# REPLICA SET
+
+A ReplicaSet is the next-generation ReplicationController that provides the same core functionality but with more powerful label selectors. It ensures that a specified number of pod replicas are running at any given time.
+
+## Key Features
+- **Enhanced Selectors**: Supports set-based selectors (in, notin, exists) in addition to equality-based selectors
+- **Desired State**: Maintains a specified number of pod replicas
+- **Self-Healing**: Automatically replaces failed or deleted pods
+- **Scaling**: Can scale the number of replicas up or down
+- **Pod Management**: Uses more sophisticated label matching for pod selection
+
+## Commands
+- `kubectl get rs` => List all ReplicaSets
+- `kubectl describe rs rs_name` => Get detailed information about a ReplicaSet
+- `kubectl scale rs rs_name --replicas=3` => Scale the number of replicas
+- `kubectl apply -f rs.yaml` => Apply a ReplicaSet from YAML file
+- `kubectl delete rs rs_name` => Delete a ReplicaSet
+- `k delete rs --all` => Delete all ReplicaSets in the current namespace
+
+
 

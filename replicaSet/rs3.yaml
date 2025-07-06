@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: rsi3
+  labels:
+    tag: hoho
+spec:
+  replicas: 4
+  selector:
+    matchExpressions:
+
+      - key: app
+        operator: In
+        values:
+          - v1
+
+      - key: env
+        operator: NotIn
+        values:
+        - test
+        - dev
+
+  template:
+    metadata:
+      name: pod-name
+      labels:
+        app: v1
+    spec:
+      containers:
+        - name: container-name
+          image: nginx
