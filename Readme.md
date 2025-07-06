@@ -239,5 +239,46 @@ A ReplicaSet is the next-generation ReplicationController that provides the same
 - `kubectl delete rs rs_name` => Delete a ReplicaSet
 - `k delete rs --all` => Delete all ReplicaSets in the current namespace
 
+# DEPLOYMENT
+
+## Key Features
+- **Declarative Updates**: Describe desired state, let Kubernetes handle the rest
+- **Rolling Updates**: Update applications with zero downtime
+- **Rollback Capability**: Easily rollback to previous versions
+- **Pause and Resume**: Pause deployments to make multiple changes
+
+## Commands
+- `kubectl get deployments` => List all Deployments
+- `kubectl describe deployment deployment_name` => Get detailed information about a Deployment
+- `kubectl scale deployment deployment_name --replicas=3` => Scale the number of replicas
+- `kubectl apply -f deployment.yaml` => Apply a Deployment from YAML file
+- `kubectl rollout status deployment/deployment_name` => Check the status of a deployment rollout
+- `kubectl rollout history deployment/deployment_name` => View deployment history
+- `kubectl rollout undo deployment/deployment_name` => Rollback to the previous version
+- `kubectl rollout undo deployment/deployment_name --to-revision=2` => Rollback to a specific revision
+- `kubectl get all -o wide` => Get detailed information about all resources (pods, services, deployments, etc.)
+
+## Rolling Update Strategy
+- **Recreate**: Terminates old pods before creating new ones
+- **RollingUpdate**: Gradually replaces old pods with new ones (default)
+
+## Tip: Custom Rollout Change-Cause Annotation
+To set a custom rollout name or description for history, add this under your Deployment's metadata:
+
+```yaml
+metadata:
+  annotations:
+    kubernetes.io/change-cause: "latest version is deployed"
+```
+This message will appear in `kubectl rollout history` for better tracking of changes.
+
+> **Note:** Kubernetes keeps the last 10 revisions of a Deployment rollout history by default. This is controlled by the `revisionHistoryLimit` field in your Deployment YAML. For example:
+
+```yaml
+spec:
+  revisionHistoryLimit: 20
+```
+This would keep the last 20 revisions instead of the default 10.
+
 
 
