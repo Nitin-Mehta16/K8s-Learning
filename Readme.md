@@ -214,7 +214,6 @@ A ReplicationController ensures that a specified number of pod replicas are runn
 - **Desired State**: Maintains a specified number of pod replicas
 - **Self-Healing**: Automatically replaces failed or deleted pods
 - **Scaling**: Can scale the number of replicas up or down
-- **Rolling Updates**: Supports rolling updates for zero-downtime deployments
 
 ## Commands
 - `kubectl get rc` => List all ReplicationControllers
@@ -230,9 +229,6 @@ A ReplicaSet is the next-generation ReplicationController that provides the same
 
 ## Key Features
 - **Enhanced Selectors**: Supports set-based selectors (in, notin, exists) in addition to equality-based selectors
-- **Desired State**: Maintains a specified number of pod replicas
-- **Self-Healing**: Automatically replaces failed or deleted pods
-- **Scaling**: Can scale the number of replicas up or down
 - **Pod Management**: Uses more sophisticated label matching for pod selection
 
 ## Commands
