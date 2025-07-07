@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy
+  labels:
+    tag: hoho
+spec:
+
+  replicas: 12
+
+  minReadySeconds: 10      #min time for pod to be ready
+  strategy:
+    type: Recreate    #by default it is RollingUpdate
+    
+  selector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values:
+          - v1
+      - key: env
+        operator: NotIn
+        values:
+        - test
+        - dev
+    matchLabels:
+      face: internet
+  template:
+    metadata:
+      name: pod-name
+      labels:
+        app: v1
+        face: internet
+    spec:
+      containers:
+        - name: container-name
+          image: coolgourav147/nginx-custom:v1

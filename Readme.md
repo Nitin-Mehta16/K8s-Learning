@@ -9,6 +9,7 @@
 
 ### General Commands
 1. `kubectl api-resources` => List all available API resources
+2. `k explain resource_name --recursive` => Get detailed documentation for all fields of a resource recursively
 
 ## NODES
 1. `kubectl get nodes` => List all nodes
@@ -279,6 +280,62 @@ spec:
   revisionHistoryLimit: 20
 ```
 This would keep the last 20 revisions instead of the default 10.
+
+# RESOURCES IN POD
+
+Resource management in Kubernetes pods allows you to specify CPU and memory requirements and limits for containers.
+
+## Resource Types
+- **Requests**: Minimum resources required for the container to run
+- **Limits**: Maximum resources the container can use
+
+## Resource Units
+- **CPU**: Specified in cores (e.g., 0.5, 1, 2) or millicores (e.g., 500m)
+- **Memory**: Specified in bytes, KiB, MiB, GiB (e.g., 64Mi, 128Mi, 1Gi)
+
+
+## Commands
+- `kubectl describe pod pod_name` => View resource allocation and usage
+- `kubectl top pods` => Show resource usage of pods
+- `kubectl top nodes` => Show resource usage of nodes
+
+## Best Practices
+- Always set resource requests and limits
+- Monitor resource usage regularly
+- Use appropriate resource values based on application needs
+- Consider using HorizontalPodAutoscaler for automatic scaling
+
+> **Note:** In the case of multiple containers in a single pod, the pod's total CPU and memory requests/limits are the sum of the values for all containers (e.g., total CPU = cpu1 + cpu2).
+
+# NAMESPACES
+
+## Key Concepts
+- **Isolation**: Namespaces provide a scope for names, allowing resources with the same name to exist in different namespaces.
+- **Resource Quotas**: You can set resource limits per namespace.
+- **Default Namespace**: If not specified, resources are created in the `default` namespace.
+
+## Common Commands
+- `kubectl get ns` => List all namespaces
+- `kubectl create ns my-namespace` => Create a new namespace
+- `kubectl delete ns my-namespace` => Delete a namespace
+- `kubectl get pods -n my-namespace` => List pods in a specific namespace
+- `kubectl config set-context --current --namespace=my-namespace` => Set default namespace for current context
+- `k apply -f pod.yaml -n my-namespace` => Apply a resource (e.g., pod) to a specific namespace
+
+## Best Practices
+- Use namespaces to separate environments (dev, test, prod)
+- Apply resource quotas and limits per namespace
+- Use RBAC to control access per namespace
+
+### Default Namespaces
+- **default**: The default namespace for user resources
+- **kube-node-lease**: Used to enhance the heartbeat of worker nodes
+- **kube-public**: Contains resources that should be publicly accessible
+- **kube-system**: Used for Kubernetes system components
+
+> **Note:** Within a namespace, pods can access services directly using the service name (e.g., `http://service-name`). No need to specify the namespace for intra-namespace communication.
+
+> **Note:** For cross-namespace access, pods must use the full DNS name: `service-name.namespace.svc.cluster.local` (e.g., `http://my-service.service-namespace.svc.cluster.local`).
 
 
 
