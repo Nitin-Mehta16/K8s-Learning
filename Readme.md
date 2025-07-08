@@ -337,5 +337,51 @@ Resource management in Kubernetes pods allows you to specify CPU and memory requ
 
 > **Note:** For cross-namespace access, pods must use the full DNS name: `service-name.namespace.svc.cluster.local` (e.g., `http://my-service.service-namespace.svc.cluster.local`).
 
+---
+
+### Resource Quotas in Namespaces
+
+Purpose: To limit the total resource usage (e.g., CPU, memory, number of objects) within a namespace.
+
+- **Scope:** Quotas are applied per namespace.
+- **Types of Quotas:** 
+                    1. Object based Quotas 
+                    2. Resource based Quotas --> CPU, Memory
+
+> **Note:**
+> When you create a ResourceQuota in a namespace, Kubernetes enforces that all resources created in that namespace must define their resource requests and limits. If you do not define resource requests, Kubernetes will automatically set requests = limits.
+
+✅ ResourceQuota controls total resource use across the entire namespace.
+
+
+### Limit Range in Namespaces
+
+Purpose: To set default and maximum/minimum resource limits per pod/container inside the namespace.
+
+`kubectl get limitrange -n namespace-name` => List all LimitRanges in the namespace
+`kubectl describe -n namespace-name` => Describe a LimitRange in the namespace
+
+✅ LimitRange controls per-pod/container limits.
+
+
+# ConfigMap
+
+Purpose: To provide configuration data to pods and other resources without hardcoding values inside container images.
+
+`kubectl create cm config-name --from-literal=key=value` => Create a ConfigMap from literal values
+`kubectl create cm config-name --from-file=path/to/file` => Create a ConfigMap from a file
+`kubectl get cm -n namespace-name` => List all ConfigMaps in a namespace
+`kubectl describe cm config-name -n namespace-name` => Describe a specific ConfigMap in a namespace
+`k create cm cm2 --from-file=application.properties --from-file=database.properties` => When there are more than one file
+`k create cm cm2 --from-file=folder_name`
+
+> **Tip:**
+> Use `--from-file` for config files or when you want the whole file as a value.
+> Use `--from-env-file` for environment variable style key-value pairs.
+
+
+
+
+
 
 
