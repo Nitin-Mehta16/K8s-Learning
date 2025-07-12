@@ -10,6 +10,7 @@
 ### General Commands
 1. `kubectl api-resources` => List all available API resources
 2. `k explain resource_name --recursive` => Get detailed documentation for all fields of a resource recursively
+- `kubectl get all -o wide` => Get detailed information about all resources (pods, services, deployments, etc.)\
 
 ## NODES
 1. `kubectl get nodes` => List all nodes
@@ -175,7 +176,36 @@ Instead, simply move it to containers: and ensure it has a long-running process 
 | Use Cases              | - Pre-flight checks<br>- Config setup<br>- Wait for services | - Logging agent<br>- Sidecar proxy (Istio/Envoy)<br>- Metrics exporter |
 | Typical Volumes Used   | Shared volumes to write setup data for the main app | Shared volumes to read/write real-time data         |
 
-# CLUSTER IP
+
+
+# SERVICE
+
+Purpose of a Service
+ 1. To expose Pods to other parts of the cluster or to the external world.
+ 2. To provide a stable endpoint (IP and DNS) for communication even if the underlying Pods change.
+
+## Type of Services 
+ 1.ClusterIP: Internal cluster communication. Default. Exposes the Service on an internal IP only within the cluster.
+ 2.NodePort: External access via node IP and port. Exposes the Service on a static port on each Node’s IP.
+ 3.LoadBalancer: External access via cloud LB. Automatically provisions an external load balancer
+
+
+## HOW SERVICE WORK
+
+Kubernetes services provide a stable endpoint for accessing pods, which are ephemeral and can be created, destroyed, or moved around the cluster. Services use labels and selectors to automatically discover and route traffic to the appropriate pods.
+
+## Port Types Explained
+- **Node Port**: Port on which the service is exposed to the internet (external access)
+- **Port**: Service port / Port on which the service is exposed to the Kubernetes network (internal access)
+- **Target Port**: Pod port, should equal to the container's exposed port
+
+## How It Works
+1. **Label Selection**: Service uses label selectors to find matching pods
+2. **Endpoint Creation**: Service creates endpoints for each matching pod
+3. **Traffic Routing**: Incoming traffic is distributed across the endpoints
+4. **Automatic Updates**: When pods are added/removed, endpoints are automatically updated
+
+## CLUSTER IP
 
 ClusterIP is the default Kubernetes service type that exposes the service on a cluster-internal IP address. This makes the service only reachable from within the cluster.
 
@@ -184,28 +214,15 @@ ClusterIP is the default Kubernetes service type that exposes the service on a c
 - `k get svc` => List all services in the current namespace
 - `k describe srv service-name` => Get detailed information about a specific service
 
-# NODE PORT
+## NODE PORT
 
 NodePort is a Kubernetes service type that exposes the service on each Node's IP at a static port. This makes the service accessible from outside the Kubernetes cluster.
 
-## Port Types Explained
-- **Node Port**: Port on which the service is exposed to the internet (external access)
-- **Port**: Service port / Port on which the service is exposed to the Kubernetes network (internal access)
-- **Target Port**: Pod port, should equal to the container's exposed port
-
-## Command
+### Command
 - `k expose pod pod-name --type=NodePort --port=3000 --target-port=80 --name service-name2` => Create a NodePort service (accessible outside Kubernetes network)
 - `k apply -f first-service.yaml`
 
-# HOW SERVICE WORK
 
-Kubernetes services provide a stable endpoint for accessing pods, which are ephemeral and can be created, destroyed, or moved around the cluster. Services use labels and selectors to automatically discover and route traffic to the appropriate pods.
-
-## How It Works
-1. **Label Selection**: Service uses label selectors to find matching pods
-2. **Endpoint Creation**: Service creates endpoints for each matching pod
-3. **Traffic Routing**: Incoming traffic is distributed across the endpoints
-4. **Automatic Updates**: When pods are added/removed, endpoints are automatically updated
 
 # REPLICATION CONTROLLER
 
@@ -257,7 +274,7 @@ A ReplicaSet is the next-generation ReplicationController that provides the same
 - `kubectl rollout history deployment/deployment_name` => View deployment history
 - `kubectl rollout undo deployment/deployment_name` => Rollback to the previous version
 - `kubectl rollout undo deployment/deployment_name --to-revision=2` => Rollback to a specific revision
-- `kubectl get all -o wide` => Get detailed information about all resources (pods, services, deployments, etc.)
+
 
 ## Rolling Update Strategy
 - **Recreate**: Terminates old pods before creating new ones
@@ -375,10 +392,69 @@ Purpose: To provide configuration data to pods and other resources without hardc
 `k create cm cm2 --from-file=application.properties --from-file=database.properties` => When there are more than one file
 `k create cm cm2 --from-file=folder_name`
 
+
+
 > **Tip:**
 > Use `--from-file` for config files or when you want the whole file as a value.
 > Use `--from-env-file` for environment variable style key-value pairs.
 
+> **Note:** ConfigMaps are injected into Pods by referencing them in the Pod's YAML definition, either as environment variables or as mounted files.
+
+
+# KUBERNETES SECRETS
+
+## Purpose
+Kubernetes Secrets are used to securely store and manage sensitive information such as passwords, tokens, SSH keys, and other confidential data. 
+
+## Types of Secrets
+
+- **generic**: Default type for arbitrary user-defined key-value pairs (most custom secrets).
+- **docker** (`kubernetes.io/dockerconfigjson`): Used to store Docker registry credentials for pulling private images.
+- **tls** (`kubernetes.io/tls`): Used to store a TLS certificate and its associated private key.
+
+### generic
+`kubectl create secret generic my-generic-secret --from-literal=username=admin --from-literal=password=secret`
+### docker
+`kubectl create secret docker-registry my-docker-secret --docker-username=myuser --docker-password=mypassword --docker-server=myregistry.example.com`
+### tls
+`kubectl create secret tls my-tls-secret --cert=path/to/tls.crt --key=path/to/tls.key`
+
+## Common Commands
+- `k get secrets` — List all Secrets in the current namespace.
+- ` k create secret generic secret-name --from-file=database.properties` — Create a Secret from a file named application.properties.
+- `k get secret application.properties -o yaml` — View the YAML (base64-encoded data) of the Secret named application.properties.
+- `k describe secret secret-name` — Show details about all Secrets in the current namespace.
+
+> **Note:** Secrets are injected into Pods by referencing them in the Pod's YAML definition, either as environment variables or as mounted files.
+
+
+# TAINT AND TOLERATION
+
+## Purpose
+Taints and tolerations work together to ensure that pods are only scheduled onto appropriate nodes. Taints are applied to nodes, and tolerations are applied to pods.
+
+## Key Concepts
+- **Taint:** Prevents pods from being scheduled on a node unless the pod has a matching toleration.
+- **Toleration:** Allows (tolerates) a pod to be scheduled on a node with a matching taint.
+
+## How It Works
+- Nodes are “tainted” to repel certain pods.
+- Pods with matching “tolerations” can be scheduled on those tainted nodes.
+- If a pod does not tolerate a node’s taint, it will not be scheduled on that node.
+
+## Common Use Cases
+- Dedicating nodes for specific workloads (e.g., GPU, high-memory, or special compliance requirements).
+- Preventing certain pods from running on specific nodes.
+
+### Command Example
+`kubectl taint node node-name mysize=large:NoSchedule` — Add a taint to the node 'kind-worker' so that only pods with a matching toleration can be scheduled on it.
+
+`k taint node node-name mysize-` — Remove the taint with key 'mysize' from the node 'node-name', allowing pods to be scheduled on it without requiring a matching toleration.
+
+**Taint Effects:**
+- **NoSchedule**: Pods that do not tolerate the taint will not be scheduled on the node.
+- **PreferNoSchedule**: Kubernetes will try to avoid scheduling pods that do not tolerate the taint, but it is not guaranteed.
+- **NoExecute**: Existing pods that do not tolerate the taint will be evicted from the node, and new ones will not be scheduled.
 
 
 

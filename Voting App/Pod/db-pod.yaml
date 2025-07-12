@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: db
+  labels:
+    app: db
+spec:
+  containers:
+    - name: postgress
+      image: postgres:15-alpine
+      ports:
+        - containerPort: 5432
+      env:
+        - name: POSTGRES_USER 
+          value: postgress
+        - name: POSTGRES_PASSWORD
+          value: postgress

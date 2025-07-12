@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: limits
+  labels:
+    tag: hulala
+spec:
+  limits:
+    - default:
+        cpu: 200m
+        memory: 500m
+      defaultRequest:
+        cpu: 100m
+        memory: 250m
+
+      min:
+        cpu: 80m
+        memory: 250Mi
+      max:
+        cpu: 0.1
+        memory: 700Mi
+
+      type: Container
+
+    - maxLimitRequestRatio:
+        memory: 2
+      type: Container
+
