@@ -26,25 +26,28 @@
 1. `kubectl run nitin --image nginx` => Create pod imperatively
 2. `kubectl get pods` => List all pods
 3. `kubectl get pod --show-labels` => List all pods and display their labels
-4. `kubectl describe pod nitin` => Detailed pod information
-5. `kubectl get pods -o wide` => Detailed pod information with node info
-6. `kubectl edit pod nitin` => Edit pod in default editor
-7. `kubectl apply -f pod.yaml` => Apply pod from YAML file
-8. `kubectl create -f pod.yaml` => Create pod from YAML file (will update existing pod)
-9. `kubectl delete pod nitin1` => Delete specific pod
-10. `kubectl run nitin1 --image nginx --dry-run=client -o yaml` => Generate YAML template without creating
-11. `kubectl describe pod > description.yaml` => Save pod description to file
-12. `kubectl get pod nitin -o yaml > detail.yaml` => Save pod YAML to file
-13. `kubectl delete -f pod.yaml` => Delete pod(s) defined in a YAML file
-14. `kubectl apply -f pod.yaml --dry-run=server` => Validate pod.yaml against the live API server without applying
-15. `kubectl apply -f pod.yaml --dry-run=client` => Validate pod.yaml locally (client-side) without applying
-16. `kubectl diff -f pod.yaml` => Show differences between the current cluster state and the pod.yaml file
-17. `kubectl exec -it pod_name -c container_name -- sh` => Access a specific container in a pod using sh shell
-18. `k label pod pod_name label-` => Remove a specific label from a pod
-19. `k delete pods --all` => Delete all pods in the current namespace
+4. `k get pod -l env=dev` => List all pods with the label 'env=dev' in the current namespace
+5. `k get all -l env=prod` => List all resources with the label 'env=prod' in the current namespace
+6. `k get all -l bu=finance -l env=prod -l tier=frontend` => List all resources with the labels 'bu=finance', 'env=prod', and 'tier=frontend' in the current namespace
+7. `kubectl describe pod nitin` => Detailed pod information
+8. `kubectl get pods -o wide` => Detailed pod information with node info
+9. `kubectl edit pod nitin` => Edit pod in default editor
+10. `kubectl apply -f pod.yaml` => Apply pod from YAML file
+11. `kubectl create -f pod.yaml` => Create pod from YAML file (will update existing pod)
+12. `kubectl delete pod nitin1` => Delete specific pod
+13. `kubectl run nitin1 --image nginx --dry-run=client -o yaml` => Generate YAML template without creating
+14. `kubectl describe pod > description.yaml` => Save pod description to file
+15. `kubectl get pod nitin -o yaml > detail.yaml` => Save pod YAML to file
+16. `kubectl delete -f pod.yaml` => Delete pod(s) defined in a YAML file
+17. `kubectl apply -f pod.yaml --dry-run=server` => Validate pod.yaml against the live API server without applying
+18. `kubectl apply -f pod.yaml --dry-run=client` => Validate pod.yaml locally (client-side) without applying
+19. `kubectl diff -f pod.yaml` => Show differences between the current cluster state and the pod.yaml file
+20. `kubectl exec -it pod_name -c container_name -- sh` => Access a specific container in a pod using sh shell
+21. `k label pod pod_name label-` => Remove a specific label from a pod
+22. `k delete pods --all` => Delete all pods in the current namespace
 
 ### IMPORTANT: kubectl exec (NEVER use in production)
-20. `kubectl exec -it pod_name -- bash` => **NEVER use in production: pods are ephemeral (changes lost on restart) + security risk (privilege escalation)**
+23. `kubectl exec -it pod_name -- bash` => **NEVER use in production: pods are ephemeral (changes lost on restart) + security risk (privilege escalation)**
 
 ## EPHEMERAL CONTAINERS
 **Definition:** Ephemeral containers are temporary containers that run alongside existing containers in a pod for debugging purposes.
@@ -440,7 +443,8 @@ Taints and tolerations work together to ensure that pods are only scheduled onto
 ## How It Works
 - Nodes are “tainted” to repel certain pods.
 - Pods with matching “tolerations” can be scheduled on those tainted nodes.
-- If a pod does not tolerate a node’s taint, it will not be scheduled on that node.
+
+> **Note:** By default, the master node (control plane node) is tainted, which prevents regular pods from being scheduled on it unless they have a matching toleration. This is done to ensure that only critical system pods run on the master node.
 
 ## Common Use Cases
 - Dedicating nodes for specific workloads (e.g., GPU, high-memory, or special compliance requirements).
