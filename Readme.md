@@ -461,6 +461,59 @@ Taints and tolerations work together to ensure that pods are only scheduled onto
 - **NoExecute**: Existing pods that do not tolerate the taint will be evicted from the node, and new ones will not be scheduled.
 
 
+# NODE SELECTOR & NODE AFFINITY
+
+## Purpose
+Node Selector and Node Affinity are mechanisms in Kubernetes to control which nodes your pods are scheduled on, based on node labels. This allows you to target specific nodes for certain workloads (e.g., GPU nodes, high-memory nodes, compliance zones).
+
+---
+
+## NODE SELECTOR
+
+Node Selector is the simplest way to constrain pods to run on nodes with specific labels.
+
+### How It Works
+- You add a `nodeSelector` field to your Pod spec, specifying a key-value pair that must match a label on the node.
+- If no node matches, the pod will remain unscheduled.
+
+### Commands
+- `kubectl label nodes node-name key=value` — Add a label to a node
+- `kubectl get nodes --show-labels` — Show all node labels
+
+---
+
+## NODE AFFINITY
+
+Node Affinity is a more expressive and flexible way to control pod scheduling, introduced as a replacement and enhancement for nodeSelector.
+
+### Types of Node Affinity
+- `requiredDuringSchedulingIgnoredDuringExecution`: (Hard requirement) Pod will only be scheduled on nodes that match the rules. If no node matches, the pod will not be scheduled.
+- `preferredDuringSchedulingIgnoredDuringExecution`: (Soft preference) Kubernetes will try to schedule the pod on matching nodes, but will use others if none are available.
+
+- Node affinity supports operators like `In`, `NotIn`, `Exists`, `DoesNotExist`, `Gt`, and `Lt` for matching node labels.
+- For example, you can require a pod to run only on nodes with a specific label or prefer nodes in a certain zone.
+
+---
+
+
+## Best Practices
+- Use nodeSelector for simple, single-label constraints.
+- Use node affinity for complex scheduling needs (multiple labels, soft preferences).
+- Label your nodes meaningfully (e.g., by hardware, zone, environment).
+- Avoid over-constraining pods, which can lead to unschedulable workloads.
+- Regularly review node labels and affinity rules as your cluster evolves.
+
+---
+
+## Common Commands
+- `kubectl label nodes node-name key=value` — Add or update a label on a node
+- `kubectl get nodes --show-labels` — List all nodes with their labels
+- `kubectl describe node node-name` — View detailed node info, including labels
+- `k label node node01 color=blue` — Add a label `color=blue` to the node named `node01`
+
+> Note: Node Affinity only affects scheduling, not ongoing execution. If a node's labels change after a pod is scheduled, the pod will not be evicted.
+
+
 
 
 
